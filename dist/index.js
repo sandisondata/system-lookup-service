@@ -100,7 +100,8 @@ const update = (query, primaryKey, updateData) => __awaiter(void 0, void 0, void
         if (typeof updateData.lookup_type !== 'undefined' &&
             updateData.lookup_type !== row.lookup_type) {
             debug.write(node_debug_1.MessageType.Step, 'Renaming lookup values table...');
-            const text = `ALTER TABLE ${row.lookup_type}_lookup_values RENAME TO ${updateData.lookup_type}_lookup_values`;
+            const text = `ALTER TABLE ${row.lookup_type}_lookup_values ` +
+                `RENAME TO ${updateData.lookup_type}_lookup_values`;
             debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
             yield query(text);
         }
