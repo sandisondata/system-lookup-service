@@ -56,7 +56,7 @@ export const create = async (query: Query, createData: CreateData) => {
     'lookup_code varchar(30) NOT NULL, ' +
     'meaning varchar(30) NOT NULL, ' +
     'description text, ' +
-    'is_enabled boolean DEFAULT false, ' +
+    'is_enabled boolean NOT NULL DEFAULT false, ' +
     `CONSTRAINT "${createData.lookup_uuid}_pk" PRIMARY KEY (lookup_code), ` +
     `CONSTRAINT "${createData.lookup_uuid}_uk" UNIQUE (meaning)` +
     ')';
@@ -110,7 +110,8 @@ export const update = async (
   const debug = new Debug(`${debugSource}.update`);
   debug.write(
     MessageType.Entry,
-    `primaryKey=${JSON.stringify(primaryKey)};updateData=${JSON.stringify(updateData)}`,
+    `primaryKey=${JSON.stringify(primaryKey)};` +
+      `updateData=${JSON.stringify(updateData)}`,
   );
   debug.write(MessageType.Step, 'Finding row by primary key...');
   const row = (await findByPrimaryKey(
@@ -146,7 +147,7 @@ export const update = async (
       const uniqueKey2 = { meaning: updateData.meaning };
       debug.write(
         MessageType.Value,
-        `uniqueKey1=${JSON.stringify(uniqueKey2)}`,
+        `uniqueKey2=${JSON.stringify(uniqueKey2)}`,
       );
       debug.write(MessageType.Step, 'Checking unique key 2...');
       await checkUniqueKey(query, tableName, instanceName, uniqueKey2);

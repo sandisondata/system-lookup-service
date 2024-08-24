@@ -41,7 +41,7 @@ const create = (query, createData) => __awaiter(void 0, void 0, void 0, function
         'lookup_code varchar(30) NOT NULL, ' +
         'meaning varchar(30) NOT NULL, ' +
         'description text, ' +
-        'is_enabled boolean DEFAULT false, ' +
+        'is_enabled boolean NOT NULL DEFAULT false, ' +
         `CONSTRAINT "${createData.lookup_uuid}_pk" PRIMARY KEY (lookup_code), ` +
         `CONSTRAINT "${createData.lookup_uuid}_uk" UNIQUE (meaning)` +
         ')';
@@ -75,7 +75,8 @@ const findOne = (query, primaryKey) => __awaiter(void 0, void 0, void 0, functio
 exports.findOne = findOne;
 const update = (query, primaryKey, updateData) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.update`);
-    debug.write(node_debug_1.MessageType.Entry, `primaryKey=${JSON.stringify(primaryKey)};updateData=${JSON.stringify(updateData)}`);
+    debug.write(node_debug_1.MessageType.Entry, `primaryKey=${JSON.stringify(primaryKey)};` +
+        `updateData=${JSON.stringify(updateData)}`);
     debug.write(node_debug_1.MessageType.Step, 'Finding row by primary key...');
     const row = (yield (0, database_helpers_1.findByPrimaryKey)(query, tableName, instanceName, primaryKey, { columnNames: columnNames, forUpdate: true }));
     debug.write(node_debug_1.MessageType.Value, `row=${JSON.stringify(row)}`);
@@ -93,7 +94,7 @@ const update = (query, primaryKey, updateData) => __awaiter(void 0, void 0, void
         if (typeof updateData.meaning !== 'undefined' &&
             updateData.meaning !== row.meaning) {
             const uniqueKey2 = { meaning: updateData.meaning };
-            debug.write(node_debug_1.MessageType.Value, `uniqueKey1=${JSON.stringify(uniqueKey2)}`);
+            debug.write(node_debug_1.MessageType.Value, `uniqueKey2=${JSON.stringify(uniqueKey2)}`);
             debug.write(node_debug_1.MessageType.Step, 'Checking unique key 2...');
             yield (0, database_helpers_1.checkUniqueKey)(query, tableName, instanceName, uniqueKey2);
         }
