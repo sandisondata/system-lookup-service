@@ -81,25 +81,23 @@ const update = (query, primaryKey, updateData) => __awaiter(void 0, void 0, void
     const row = (yield (0, database_helpers_1.findByPrimaryKey)(query, tableName, instanceName, primaryKey, { columnNames: columnNames, forUpdate: true }));
     debug.write(node_debug_1.MessageType.Value, `row=${JSON.stringify(row)}`);
     const mergedRow = Object.assign({}, row, updateData);
+    debug.write(node_debug_1.MessageType.Value, `mergedRow=${JSON.stringify(mergedRow)}`);
     let updatedRow = Object.assign({}, mergedRow);
     if (!(0, node_utilities_1.objectsEqual)((0, node_utilities_1.pick)(mergedRow, dataColumnNames), (0, node_utilities_1.pick)(row, dataColumnNames))) {
         debug.write(node_debug_1.MessageType.Step, 'Validating data...');
-        if (typeof updateData.lookup_type !== 'undefined' &&
-            updateData.lookup_type !== row.lookup_type) {
+        if (mergedRow.lookup_type !== row.lookup_type) {
             const uniqueKey1 = { lookup_type: updateData.lookup_type };
             debug.write(node_debug_1.MessageType.Value, `uniqueKey1=${JSON.stringify(uniqueKey1)}`);
             debug.write(node_debug_1.MessageType.Step, 'Checking unique key 1...');
             yield (0, database_helpers_1.checkUniqueKey)(query, tableName, instanceName, uniqueKey1);
         }
-        if (typeof updateData.meaning !== 'undefined' &&
-            updateData.meaning !== row.meaning) {
+        if (mergedRow.meaning !== row.meaning) {
             const uniqueKey2 = { meaning: updateData.meaning };
             debug.write(node_debug_1.MessageType.Value, `uniqueKey2=${JSON.stringify(uniqueKey2)}`);
             debug.write(node_debug_1.MessageType.Step, 'Checking unique key 2...');
             yield (0, database_helpers_1.checkUniqueKey)(query, tableName, instanceName, uniqueKey2);
         }
-        if (typeof updateData.lookup_type !== 'undefined' &&
-            updateData.lookup_type !== row.lookup_type) {
+        if (mergedRow.lookup_type !== row.lookup_type) {
             debug.write(node_debug_1.MessageType.Step, 'Renaming lookup values table...');
             const text = `ALTER TABLE ${row.lookup_type}_lookup_values ` +
                 `RENAME TO ${updateData.lookup_type}_lookup_values`;

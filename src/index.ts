@@ -123,15 +123,13 @@ export const update = async (
   )) as Row;
   debug.write(MessageType.Value, `row=${JSON.stringify(row)}`);
   const mergedRow: Row = Object.assign({}, row, updateData);
+  debug.write(MessageType.Value, `mergedRow=${JSON.stringify(mergedRow)}`);
   let updatedRow: Row = Object.assign({}, mergedRow);
   if (
     !objectsEqual(pick(mergedRow, dataColumnNames), pick(row, dataColumnNames))
   ) {
     debug.write(MessageType.Step, 'Validating data...');
-    if (
-      typeof updateData.lookup_type !== 'undefined' &&
-      updateData.lookup_type !== row.lookup_type
-    ) {
+    if (mergedRow.lookup_type !== row.lookup_type) {
       const uniqueKey1 = { lookup_type: updateData.lookup_type };
       debug.write(
         MessageType.Value,
@@ -140,10 +138,7 @@ export const update = async (
       debug.write(MessageType.Step, 'Checking unique key 1...');
       await checkUniqueKey(query, tableName, instanceName, uniqueKey1);
     }
-    if (
-      typeof updateData.meaning !== 'undefined' &&
-      updateData.meaning !== row.meaning
-    ) {
+    if (mergedRow.meaning !== row.meaning) {
       const uniqueKey2 = { meaning: updateData.meaning };
       debug.write(
         MessageType.Value,
@@ -152,10 +147,7 @@ export const update = async (
       debug.write(MessageType.Step, 'Checking unique key 2...');
       await checkUniqueKey(query, tableName, instanceName, uniqueKey2);
     }
-    if (
-      typeof updateData.lookup_type !== 'undefined' &&
-      updateData.lookup_type !== row.lookup_type
-    ) {
+    if (mergedRow.lookup_type !== row.lookup_type) {
       debug.write(MessageType.Step, 'Renaming lookup values table...');
       const text =
         `ALTER TABLE ${row.lookup_type}_lookup_values ` +
