@@ -25,7 +25,8 @@ describe('main', (suiteContext) => {
       await create(query, {
         lookup_uuid: uuid,
         lookup_type: 'status',
-        meaning: 'Status',
+        meaning: 'Status meaning',
+        description: 'Status description',
       });
     });
     debug.write(MessageType.Exit);
@@ -49,7 +50,11 @@ describe('main', (suiteContext) => {
     const debug = new Debug(`${suiteContext.name}.test.${testContext.name}`);
     debug.write(MessageType.Entry);
     await database.transaction(async (query) => {
-      await update(query, { lookup_uuid: uuid }, { lookup_type: 'status2' });
+      await update(
+        query,
+        { lookup_uuid: uuid },
+        { lookup_type: 'status2', description: null },
+      );
     });
     debug.write(MessageType.Exit);
     assert.ok(true);

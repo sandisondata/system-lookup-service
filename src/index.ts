@@ -27,7 +27,7 @@ export type PrimaryKey = {
 export type Data = {
   lookup_type: string;
   meaning: string;
-  description?: string;
+  description?: string | null;
 };
 
 export type CreateData = PrimaryKey & Data;
