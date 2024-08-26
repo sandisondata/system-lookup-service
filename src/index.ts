@@ -41,7 +41,6 @@ export const create = async (query: Query, createData: CreateData) => {
   debug.write(MessageType.Value, `primaryKey=${JSON.stringify(primaryKey)}`);
   debug.write(MessageType.Step, 'Checking primary key...');
   await checkPrimaryKey(query, tableName, instanceName, primaryKey);
-  debug.write(MessageType.Step, 'Validating data...');
   const uniqueKey1 = { lookup_type: createData.lookup_type };
   debug.write(MessageType.Value, `uniqueKey1=${JSON.stringify(uniqueKey1)}`);
   debug.write(MessageType.Step, 'Checking unique key 1...');
@@ -128,7 +127,6 @@ export const update = async (
   if (
     !objectsEqual(pick(mergedRow, dataColumnNames), pick(row, dataColumnNames))
   ) {
-    debug.write(MessageType.Step, 'Validating data...');
     if (mergedRow.lookup_type !== row.lookup_type) {
       const uniqueKey1 = { lookup_type: updateData.lookup_type };
       debug.write(
