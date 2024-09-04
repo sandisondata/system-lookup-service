@@ -5,8 +5,6 @@ import { Database } from 'database';
 import { Debug, MessageType } from 'node-debug';
 import { create, delete_, find, findOne, update } from '../dist';
 
-import { v4 as uuidv4 } from 'uuid';
-
 describe('main', (suiteContext) => {
   Debug.initialise(true);
   let database: Database;
@@ -15,19 +13,18 @@ describe('main', (suiteContext) => {
     const debug = new Debug(`${suiteContext.name}.before`);
     debug.write(MessageType.Entry);
     database = Database.getInstance();
-    uuid = uuidv4();
     debug.write(MessageType.Exit);
   });
   it('create', async (testContext) => {
     const debug = new Debug(`${suiteContext.name}.test.${testContext.name}`);
     debug.write(MessageType.Entry);
     await database.transaction(async (query) => {
-      await create(query, {
-        lookup_uuid: uuid,
+      const createdRow = await create(query, {
         lookup_type: 'status',
         meaning: 'Status meaning',
         description: 'Status description',
       });
+      uuid = createdRow.uuid;
     });
     debug.write(MessageType.Exit);
     assert.ok(true);
@@ -42,7 +39,7 @@ describe('main', (suiteContext) => {
   it('findOne', async (testContext) => {
     const debug = new Debug(`${suiteContext.name}.test.${testContext.name}`);
     debug.write(MessageType.Entry);
-    await findOne(database.query, { lookup_uuid: uuid });
+    await findOne(database.query, { uuid: uuid });
     debug.write(MessageType.Exit);
     assert.ok(true);
   });
@@ -52,7 +49,7 @@ describe('main', (suiteContext) => {
     await database.transaction(async (query) => {
       await update(
         query,
-        { lookup_uuid: uuid },
+        { uuid: uuid },
         { lookup_type: 'status2', description: null },
       );
     });
@@ -63,7 +60,7 @@ describe('main', (suiteContext) => {
     const debug = new Debug(`${suiteContext.name}.test.${testContext.name}`);
     debug.write(MessageType.Entry);
     await database.transaction(async (query) => {
-      await delete_(query, { lookup_uuid: uuid });
+      await delete_(query, { uuid: uuid });
     });
     debug.write(MessageType.Exit);
     assert.ok(true);

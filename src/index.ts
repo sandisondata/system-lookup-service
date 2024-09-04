@@ -16,12 +16,12 @@ const debugRows = 3;
 const tableName = '_lookups';
 const instanceName = 'lookup';
 
-const primaryKeyColumnNames = ['lookup_uuid'];
+const primaryKeyColumnNames = ['uuid'];
 const dataColumnNames = ['lookup_type', 'meaning', 'description'];
 const columnNames = [...primaryKeyColumnNames, ...dataColumnNames];
 
 export type PrimaryKey = {
-  lookup_uuid: string;
+  uuid?: string;
 };
 
 export type Data = {
@@ -31,16 +31,25 @@ export type Data = {
 };
 
 export type CreateData = PrimaryKey & Data;
-export type Row = PrimaryKey & Required<Data>;
-export type UpdateData = Partial<Data>;
+export type CreatedRow = Row;
 
-export const create = async (query: Query, createData: CreateData) => {
+export type Row = Required<PrimaryKey> & Required<Data>;
+
+export type UpdateData = Partial<Data>;
+export type UpdatedRow = Row;
+
+export const create = async (
+  query: Query,
+  createData: CreateData,
+): Promise<CreatedRow> => {
   const debug = new Debug(`${debugSource}.create`);
   debug.write(MessageType.Entry, `createData=${JSON.stringify(createData)}`);
-  const primaryKey: PrimaryKey = { lookup_uuid: createData.lookup_uuid };
-  debug.write(MessageType.Value, `primaryKey=${JSON.stringify(primaryKey)}`);
-  debug.write(MessageType.Step, 'Checking primary key...');
-  await checkPrimaryKey(query, tableName, instanceName, primaryKey);
+  if (typeof createData.uuid !== 'undefined') {
+    const primaryKey: PrimaryKey = { uuid: createData.uuid };
+    debug.write(MessageType.Value, `primaryKey=${JSON.stringify(primaryKey)}`);
+    debug.write(MessageType.Step, 'Checking primary key...');
+    await checkPrimaryKey(query, tableName, instanceName, primaryKey);
+  }
   const uniqueKey1 = { lookup_type: createData.lookup_type };
   debug.write(MessageType.Value, `uniqueKey1=${JSON.stringify(uniqueKey1)}`);
   debug.write(MessageType.Step, 'Checking unique key 1...');
@@ -49,18 +58,6 @@ export const create = async (query: Query, createData: CreateData) => {
   debug.write(MessageType.Value, `uniqueKey2=${JSON.stringify(uniqueKey2)}`);
   debug.write(MessageType.Step, 'Checking unique key 2...');
   await checkUniqueKey(query, tableName, instanceName, uniqueKey2);
-  debug.write(MessageType.Step, 'Creating lookup values table...');
-  const text =
-    `CREATE TABLE ${createData.lookup_type}_lookup_values (` +
-    'lookup_code varchar(30) NOT NULL, ' +
-    'meaning varchar(30) NOT NULL, ' +
-    'description text, ' +
-    'is_enabled boolean NOT NULL DEFAULT false, ' +
-    `CONSTRAINT "${createData.lookup_uuid}_pk" PRIMARY KEY (lookup_code), ` +
-    `CONSTRAINT "${createData.lookup_uuid}_uk" UNIQUE (meaning)` +
-    ')';
-  debug.write(MessageType.Value, `text=(${text})`);
-  await query(text);
   debug.write(MessageType.Step, 'Creating row...');
   const createdRow = (await createRow(
     query,
@@ -68,6 +65,18 @@ export const create = async (query: Query, createData: CreateData) => {
     createData,
     columnNames,
   )) as Row;
+  debug.write(MessageType.Step, 'Creating lookup values table...');
+  const text =
+    `CREATE TABLE ${createdRow.lookup_type}_lookup_values (` +
+    'lookup_code varchar(30) NOT NULL, ' +
+    'meaning varchar(30) NOT NULL, ' +
+    'description text, ' +
+    'is_enabled boolean NOT NULL DEFAULT false, ' +
+    `CONSTRAINT "${createdRow.uuid}_pk" PRIMARY KEY (lookup_code), ` +
+    `CONSTRAINT "${createdRow.uuid}_uk" UNIQUE (meaning)` +
+    ')';
+  debug.write(MessageType.Value, `text=(${text})`);
+  await query(text);
   debug.write(MessageType.Exit, `createdRow=${JSON.stringify(createdRow)}`);
   return createdRow;
 };
@@ -77,7 +86,7 @@ export const find = async (query: Query) => {
   const debug = new Debug(`${debugSource}.find`);
   debug.write(MessageType.Entry);
   debug.write(MessageType.Step, 'Finding rows...');
-  const rows = (await query(`SELECT * FROM ${tableName} ORDER BY lookup_uuid`))
+  const rows = (await query(`SELECT * FROM ${tableName} ORDER BY uuid`))
     .rows as Row[];
   debug.write(
     MessageType.Exit,
@@ -105,7 +114,7 @@ export const update = async (
   query: Query,
   primaryKey: PrimaryKey,
   updateData: UpdateData,
-) => {
+): Promise<UpdatedRow> => {
   const debug = new Debug(`${debugSource}.update`);
   debug.write(
     MessageType.Entry,
@@ -145,14 +154,6 @@ export const update = async (
       debug.write(MessageType.Step, 'Checking unique key 2...');
       await checkUniqueKey(query, tableName, instanceName, uniqueKey2);
     }
-    if (mergedRow.lookup_type !== row.lookup_type) {
-      debug.write(MessageType.Step, 'Renaming lookup values table...');
-      const text =
-        `ALTER TABLE ${row.lookup_type}_lookup_values ` +
-        `RENAME TO ${updateData.lookup_type}_lookup_values`;
-      debug.write(MessageType.Value, `text=(${text})`);
-      await query(text);
-    }
     debug.write(MessageType.Step, 'Updating row...');
     updatedRow = (await updateRow(
       query,
@@ -161,6 +162,14 @@ export const update = async (
       updateData,
       columnNames,
     )) as Row;
+    if (updatedRow.lookup_type !== row.lookup_type) {
+      debug.write(MessageType.Step, 'Renaming lookup values table...');
+      const text =
+        `ALTER TABLE ${row.lookup_type}_lookup_values ` +
+        `RENAME TO ${updatedRow.lookup_type}_lookup_values`;
+      debug.write(MessageType.Value, `text=(${text})`);
+      await query(text);
+    }
   }
   debug.write(MessageType.Exit, `updatedRow=${JSON.stringify(updatedRow)}`);
   return updatedRow;
@@ -178,11 +187,11 @@ export const delete_ = async (query: Query, primaryKey: PrimaryKey) => {
     { forUpdate: true },
   )) as Row;
   debug.write(MessageType.Value, `row=${JSON.stringify(row)}`);
+  debug.write(MessageType.Step, 'Deleting row...');
+  await deleteRow(query, tableName, primaryKey);
   debug.write(MessageType.Step, 'Dropping lookup values table...');
   const text = `DROP TABLE ${row.lookup_type}_lookup_values`;
   debug.write(MessageType.Value, `text=(${text})`);
   await query(text);
-  debug.write(MessageType.Step, 'Deleting row...');
-  await deleteRow(query, tableName, primaryKey);
   debug.write(MessageType.Exit);
 };

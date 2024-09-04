@@ -15,8 +15,7 @@
     "database": "github:sandisondata/database",
     "database-helpers": "github:sandisondata/database-helpers",
     "node-debug": "github:gwfortington/node-debug",
-    "node-utilities": "github:gwfortington/node-utilities",
-    "uuid": "^10.0.0"
+    "node-utilities": "github:gwfortington/node-utilities"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.6",

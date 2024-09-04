@@ -17,16 +17,18 @@ const debugSource = 'lookup.service';
 const debugRows = 3;
 const tableName = '_lookups';
 const instanceName = 'lookup';
-const primaryKeyColumnNames = ['lookup_uuid'];
+const primaryKeyColumnNames = ['uuid'];
 const dataColumnNames = ['lookup_type', 'meaning', 'description'];
 const columnNames = [...primaryKeyColumnNames, ...dataColumnNames];
 const create = (query, createData) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.create`);
     debug.write(node_debug_1.MessageType.Entry, `createData=${JSON.stringify(createData)}`);
-    const primaryKey = { lookup_uuid: createData.lookup_uuid };
-    debug.write(node_debug_1.MessageType.Value, `primaryKey=${JSON.stringify(primaryKey)}`);
-    debug.write(node_debug_1.MessageType.Step, 'Checking primary key...');
-    yield (0, database_helpers_1.checkPrimaryKey)(query, tableName, instanceName, primaryKey);
+    if (typeof createData.uuid !== 'undefined') {
+        const primaryKey = { uuid: createData.uuid };
+        debug.write(node_debug_1.MessageType.Value, `primaryKey=${JSON.stringify(primaryKey)}`);
+        debug.write(node_debug_1.MessageType.Step, 'Checking primary key...');
+        yield (0, database_helpers_1.checkPrimaryKey)(query, tableName, instanceName, primaryKey);
+    }
     const uniqueKey1 = { lookup_type: createData.lookup_type };
     debug.write(node_debug_1.MessageType.Value, `uniqueKey1=${JSON.stringify(uniqueKey1)}`);
     debug.write(node_debug_1.MessageType.Step, 'Checking unique key 1...');
@@ -35,19 +37,19 @@ const create = (query, createData) => __awaiter(void 0, void 0, void 0, function
     debug.write(node_debug_1.MessageType.Value, `uniqueKey2=${JSON.stringify(uniqueKey2)}`);
     debug.write(node_debug_1.MessageType.Step, 'Checking unique key 2...');
     yield (0, database_helpers_1.checkUniqueKey)(query, tableName, instanceName, uniqueKey2);
+    debug.write(node_debug_1.MessageType.Step, 'Creating row...');
+    const createdRow = (yield (0, database_helpers_1.createRow)(query, tableName, createData, columnNames));
     debug.write(node_debug_1.MessageType.Step, 'Creating lookup values table...');
-    const text = `CREATE TABLE ${createData.lookup_type}_lookup_values (` +
+    const text = `CREATE TABLE ${createdRow.lookup_type}_lookup_values (` +
         'lookup_code varchar(30) NOT NULL, ' +
         'meaning varchar(30) NOT NULL, ' +
         'description text, ' +
         'is_enabled boolean NOT NULL DEFAULT false, ' +
-        `CONSTRAINT "${createData.lookup_uuid}_pk" PRIMARY KEY (lookup_code), ` +
-        `CONSTRAINT "${createData.lookup_uuid}_uk" UNIQUE (meaning)` +
+        `CONSTRAINT "${createdRow.uuid}_pk" PRIMARY KEY (lookup_code), ` +
+        `CONSTRAINT "${createdRow.uuid}_uk" UNIQUE (meaning)` +
         ')';
     debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
     yield query(text);
-    debug.write(node_debug_1.MessageType.Step, 'Creating row...');
-    const createdRow = (yield (0, database_helpers_1.createRow)(query, tableName, createData, columnNames));
     debug.write(node_debug_1.MessageType.Exit, `createdRow=${JSON.stringify(createdRow)}`);
     return createdRow;
 });
@@ -57,7 +59,7 @@ const find = (query) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.find`);
     debug.write(node_debug_1.MessageType.Entry);
     debug.write(node_debug_1.MessageType.Step, 'Finding rows...');
-    const rows = (yield query(`SELECT * FROM ${tableName} ORDER BY lookup_uuid`))
+    const rows = (yield query(`SELECT * FROM ${tableName} ORDER BY uuid`))
         .rows;
     debug.write(node_debug_1.MessageType.Exit, `rows(${debugRows})=${JSON.stringify(rows.slice(0, debugRows))}`);
     return rows;
@@ -95,15 +97,15 @@ const update = (query, primaryKey, updateData) => __awaiter(void 0, void 0, void
             debug.write(node_debug_1.MessageType.Step, 'Checking unique key 2...');
             yield (0, database_helpers_1.checkUniqueKey)(query, tableName, instanceName, uniqueKey2);
         }
-        if (mergedRow.lookup_type !== row.lookup_type) {
+        debug.write(node_debug_1.MessageType.Step, 'Updating row...');
+        updatedRow = (yield (0, database_helpers_1.updateRow)(query, tableName, primaryKey, updateData, columnNames));
+        if (updatedRow.lookup_type !== row.lookup_type) {
             debug.write(node_debug_1.MessageType.Step, 'Renaming lookup values table...');
             const text = `ALTER TABLE ${row.lookup_type}_lookup_values ` +
-                `RENAME TO ${updateData.lookup_type}_lookup_values`;
+                `RENAME TO ${updatedRow.lookup_type}_lookup_values`;
             debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
             yield query(text);
         }
-        debug.write(node_debug_1.MessageType.Step, 'Updating row...');
-        updatedRow = (yield (0, database_helpers_1.updateRow)(query, tableName, primaryKey, updateData, columnNames));
     }
     debug.write(node_debug_1.MessageType.Exit, `updatedRow=${JSON.stringify(updatedRow)}`);
     return updatedRow;
@@ -115,12 +117,12 @@ const delete_ = (query, primaryKey) => __awaiter(void 0, void 0, void 0, functio
     debug.write(node_debug_1.MessageType.Step, 'Finding row by primary key...');
     const row = (yield (0, database_helpers_1.findByPrimaryKey)(query, tableName, instanceName, primaryKey, { forUpdate: true }));
     debug.write(node_debug_1.MessageType.Value, `row=${JSON.stringify(row)}`);
+    debug.write(node_debug_1.MessageType.Step, 'Deleting row...');
+    yield (0, database_helpers_1.deleteRow)(query, tableName, primaryKey);
     debug.write(node_debug_1.MessageType.Step, 'Dropping lookup values table...');
     const text = `DROP TABLE ${row.lookup_type}_lookup_values`;
     debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
     yield query(text);
-    debug.write(node_debug_1.MessageType.Step, 'Deleting row...');
-    yield (0, database_helpers_1.deleteRow)(query, tableName, primaryKey);
     debug.write(node_debug_1.MessageType.Exit);
 });
 exports.delete_ = delete_;
