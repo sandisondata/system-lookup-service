@@ -130,7 +130,7 @@ export const update = async (
     !objectsEqual(pick(mergedRow, dataColumnNames), pick(row, dataColumnNames))
   ) {
     if (mergedRow.lookup_type !== row.lookup_type) {
-      const uniqueKey1 = { lookup_type: updateData.lookup_type };
+      const uniqueKey1 = { lookup_type: updateData.lookup_type! };
       debug.write(
         MessageType.Value,
         `uniqueKey1=${JSON.stringify(uniqueKey1)}`,
@@ -139,7 +139,7 @@ export const update = async (
       await checkUniqueKey(query, tableName, instanceName, uniqueKey1);
     }
     if (mergedRow.meaning !== row.meaning) {
-      const uniqueKey2 = { meaning: updateData.meaning };
+      const uniqueKey2 = { meaning: updateData.meaning! };
       debug.write(
         MessageType.Value,
         `uniqueKey2=${JSON.stringify(uniqueKey2)}`,
