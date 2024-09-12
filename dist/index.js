@@ -16,7 +16,6 @@ const node_utilities_1 = require("node-utilities");
 const debugSource = 'lookup.service';
 const debugRows = 3;
 const tableName = '_lookups';
-const instanceName = 'lookup';
 const primaryKeyColumnNames = ['uuid'];
 const dataColumnNames = ['lookup_type', 'meaning', 'description'];
 const columnNames = [...primaryKeyColumnNames, ...dataColumnNames];
@@ -27,16 +26,16 @@ const create = (query, createData) => __awaiter(void 0, void 0, void 0, function
         const primaryKey = { uuid: createData.uuid };
         debug.write(node_debug_1.MessageType.Value, `primaryKey=${JSON.stringify(primaryKey)}`);
         debug.write(node_debug_1.MessageType.Step, 'Checking primary key...');
-        yield (0, database_helpers_1.checkPrimaryKey)(query, tableName, instanceName, primaryKey);
+        yield (0, database_helpers_1.checkPrimaryKey)(query, tableName, primaryKey);
     }
     const uniqueKey1 = { lookup_type: createData.lookup_type };
     debug.write(node_debug_1.MessageType.Value, `uniqueKey1=${JSON.stringify(uniqueKey1)}`);
     debug.write(node_debug_1.MessageType.Step, 'Checking unique key 1...');
-    yield (0, database_helpers_1.checkUniqueKey)(query, tableName, instanceName, uniqueKey1);
+    yield (0, database_helpers_1.checkUniqueKey)(query, tableName, uniqueKey1);
     const uniqueKey2 = { meaning: createData.meaning };
     debug.write(node_debug_1.MessageType.Value, `uniqueKey2=${JSON.stringify(uniqueKey2)}`);
     debug.write(node_debug_1.MessageType.Step, 'Checking unique key 2...');
-    yield (0, database_helpers_1.checkUniqueKey)(query, tableName, instanceName, uniqueKey2);
+    yield (0, database_helpers_1.checkUniqueKey)(query, tableName, uniqueKey2);
     debug.write(node_debug_1.MessageType.Step, 'Creating row...');
     const createdRow = (yield (0, database_helpers_1.createRow)(query, tableName, createData, columnNames));
     debug.write(node_debug_1.MessageType.Step, 'Creating lookup values table...');
@@ -69,7 +68,9 @@ const findOne = (query, primaryKey) => __awaiter(void 0, void 0, void 0, functio
     const debug = new node_debug_1.Debug(`${debugSource}.findOne`);
     debug.write(node_debug_1.MessageType.Entry, `primaryKey=${JSON.stringify(primaryKey)}`);
     debug.write(node_debug_1.MessageType.Step, 'Finding row by primary key...');
-    const row = (yield (0, database_helpers_1.findByPrimaryKey)(query, tableName, instanceName, primaryKey, { columnNames: columnNames }));
+    const row = (yield (0, database_helpers_1.findByPrimaryKey)(query, tableName, primaryKey, {
+        columnNames: columnNames,
+    }));
     debug.write(node_debug_1.MessageType.Exit, `row=${JSON.stringify(row)}`);
     return row;
 });
@@ -79,7 +80,10 @@ const update = (query, primaryKey, updateData) => __awaiter(void 0, void 0, void
     debug.write(node_debug_1.MessageType.Entry, `primaryKey=${JSON.stringify(primaryKey)};` +
         `updateData=${JSON.stringify(updateData)}`);
     debug.write(node_debug_1.MessageType.Step, 'Finding row by primary key...');
-    const row = (yield (0, database_helpers_1.findByPrimaryKey)(query, tableName, instanceName, primaryKey, { columnNames: columnNames, forUpdate: true }));
+    const row = (yield (0, database_helpers_1.findByPrimaryKey)(query, tableName, primaryKey, {
+        columnNames: columnNames,
+        forUpdate: true,
+    }));
     debug.write(node_debug_1.MessageType.Value, `row=${JSON.stringify(row)}`);
     const mergedRow = Object.assign({}, row, updateData);
     debug.write(node_debug_1.MessageType.Value, `mergedRow=${JSON.stringify(mergedRow)}`);
@@ -89,13 +93,13 @@ const update = (query, primaryKey, updateData) => __awaiter(void 0, void 0, void
             const uniqueKey1 = { lookup_type: updateData.lookup_type };
             debug.write(node_debug_1.MessageType.Value, `uniqueKey1=${JSON.stringify(uniqueKey1)}`);
             debug.write(node_debug_1.MessageType.Step, 'Checking unique key 1...');
-            yield (0, database_helpers_1.checkUniqueKey)(query, tableName, instanceName, uniqueKey1);
+            yield (0, database_helpers_1.checkUniqueKey)(query, tableName, uniqueKey1);
         }
         if (mergedRow.meaning !== row.meaning) {
             const uniqueKey2 = { meaning: updateData.meaning };
             debug.write(node_debug_1.MessageType.Value, `uniqueKey2=${JSON.stringify(uniqueKey2)}`);
             debug.write(node_debug_1.MessageType.Step, 'Checking unique key 2...');
-            yield (0, database_helpers_1.checkUniqueKey)(query, tableName, instanceName, uniqueKey2);
+            yield (0, database_helpers_1.checkUniqueKey)(query, tableName, uniqueKey2);
         }
         debug.write(node_debug_1.MessageType.Step, 'Updating row...');
         updatedRow = (yield (0, database_helpers_1.updateRow)(query, tableName, primaryKey, updateData, columnNames));
@@ -115,7 +119,9 @@ const delete_ = (query, primaryKey) => __awaiter(void 0, void 0, void 0, functio
     const debug = new node_debug_1.Debug(`${debugSource}.delete`);
     debug.write(node_debug_1.MessageType.Entry, `primaryKey=${JSON.stringify(primaryKey)}`);
     debug.write(node_debug_1.MessageType.Step, 'Finding row by primary key...');
-    const row = (yield (0, database_helpers_1.findByPrimaryKey)(query, tableName, instanceName, primaryKey, { forUpdate: true }));
+    const row = (yield (0, database_helpers_1.findByPrimaryKey)(query, tableName, primaryKey, {
+        forUpdate: true,
+    }));
     debug.write(node_debug_1.MessageType.Value, `row=${JSON.stringify(row)}`);
     debug.write(node_debug_1.MessageType.Step, 'Deleting row...');
     yield (0, database_helpers_1.deleteRow)(query, tableName, primaryKey);
