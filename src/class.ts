@@ -13,6 +13,7 @@ export type Data = {
   meaning: string;
   description?: string | null;
 };
+
 export type CreateData = PrimaryKey & Data;
 export type UpdateData = Partial<Data>;
 export type Row = Required<PrimaryKey> & Required<Data>;
