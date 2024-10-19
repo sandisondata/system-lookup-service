@@ -1,7 +1,7 @@
 {
-  "name": "repository-lookup-service",
+  "name": "system-lookup-service",
   "version": "1.0.0",
-  "description": "Structured Data Repository - Lookup Service",
+  "description": "System lookup service",
   "author": "Grant Fortington",
   "private": true,
   "license": "MIT",
@@ -12,10 +12,10 @@
     "test": "rimraf --glob \"test/**/*.js\" && tsc -p tsconfig-test.json && node --env-file .test.env --test"
   },
   "dependencies": {
+    "base-service-class": "github:sandisondata/base-service-class",
     "database": "github:sandisondata/database",
     "database-helpers": "github:sandisondata/database-helpers",
-    "node-debug": "github:gwfortington/node-debug",
-    "node-utilities": "github:gwfortington/node-utilities"
+    "node-debug": "github:gwfortington/node-debug"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.6",
