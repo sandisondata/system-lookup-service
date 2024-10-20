@@ -1,14 +1,12 @@
-import { BaseService, Query } from 'base-service-class';
+import { BaseService } from 'base-service-class';
 import { checkUniqueKey } from 'database-helpers';
 import { Debug, MessageType } from 'node-debug';
-
-export { Query };
 
 export type PrimaryKey = {
   uuid?: string;
 };
 
-export type Data = {
+type Data = {
   lookup_type: string;
   meaning: string;
   description?: string | null;
@@ -82,13 +80,13 @@ export class Service extends BaseService<
     debug.write(MessageType.Entry);
     debug.write(MessageType.Step, 'Creating lookup values table...');
     const sql =
-      `CREATE TABLE ${this.row.lookup_type}_lookup_values (` +
+      `CREATE TABLE ${this.createdRow.lookup_type}_lookup_values (` +
       'lookup_code varchar(30) NOT NULL, ' +
       'meaning varchar(30) NOT NULL, ' +
       'description text, ' +
       'is_enabled boolean NOT NULL DEFAULT false, ' +
-      `CONSTRAINT "${this.row.uuid}_pk" PRIMARY KEY (lookup_code), ` +
-      `CONSTRAINT "${this.row.uuid}_uk" UNIQUE (meaning)` +
+      `CONSTRAINT "${this.createdRow.uuid}_pk" PRIMARY KEY (lookup_code), ` +
+      `CONSTRAINT "${this.createdRow.uuid}_uk" UNIQUE (meaning)` +
       ')';
     debug.write(MessageType.Value, `sql=(${sql})`);
     await this.query(sql);
@@ -98,11 +96,11 @@ export class Service extends BaseService<
   async postUpdate() {
     const debug = new Debug(`${this.debugSource}.postUpdate`);
     debug.write(MessageType.Entry);
-    if (this.row.lookup_type !== this.oldRow.lookup_type) {
+    if (this.updatedRow.lookup_type !== this.row.lookup_type) {
       debug.write(MessageType.Step, 'Renaming lookup values table...');
       const sql =
-        `ALTER TABLE ${this.oldRow.lookup_type}_lookup_values ` +
-        `RENAME TO ${this.row.lookup_type}_lookup_values`;
+        `ALTER TABLE ${this.row.lookup_type}_lookup_values ` +
+        `RENAME TO ${this.updatedRow.lookup_type}_lookup_values`;
       debug.write(MessageType.Value, `sql=(${sql})`);
       await this.query(sql);
     }

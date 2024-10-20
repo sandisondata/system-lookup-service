@@ -65,13 +65,13 @@ class Service extends base_service_class_1.BaseService {
             const debug = new node_debug_1.Debug(`${this.debugSource}.postCreate`);
             debug.write(node_debug_1.MessageType.Entry);
             debug.write(node_debug_1.MessageType.Step, 'Creating lookup values table...');
-            const sql = `CREATE TABLE ${this.row.lookup_type}_lookup_values (` +
+            const sql = `CREATE TABLE ${this.createdRow.lookup_type}_lookup_values (` +
                 'lookup_code varchar(30) NOT NULL, ' +
                 'meaning varchar(30) NOT NULL, ' +
                 'description text, ' +
                 'is_enabled boolean NOT NULL DEFAULT false, ' +
-                `CONSTRAINT "${this.row.uuid}_pk" PRIMARY KEY (lookup_code), ` +
-                `CONSTRAINT "${this.row.uuid}_uk" UNIQUE (meaning)` +
+                `CONSTRAINT "${this.createdRow.uuid}_pk" PRIMARY KEY (lookup_code), ` +
+                `CONSTRAINT "${this.createdRow.uuid}_uk" UNIQUE (meaning)` +
                 ')';
             debug.write(node_debug_1.MessageType.Value, `sql=(${sql})`);
             yield this.query(sql);
@@ -82,10 +82,10 @@ class Service extends base_service_class_1.BaseService {
         return __awaiter(this, void 0, void 0, function* () {
             const debug = new node_debug_1.Debug(`${this.debugSource}.postUpdate`);
             debug.write(node_debug_1.MessageType.Entry);
-            if (this.row.lookup_type !== this.oldRow.lookup_type) {
+            if (this.updatedRow.lookup_type !== this.row.lookup_type) {
                 debug.write(node_debug_1.MessageType.Step, 'Renaming lookup values table...');
-                const sql = `ALTER TABLE ${this.oldRow.lookup_type}_lookup_values ` +
-                    `RENAME TO ${this.row.lookup_type}_lookup_values`;
+                const sql = `ALTER TABLE ${this.row.lookup_type}_lookup_values ` +
+                    `RENAME TO ${this.updatedRow.lookup_type}_lookup_values`;
                 debug.write(node_debug_1.MessageType.Value, `sql=(${sql})`);
                 yield this.query(sql);
             }

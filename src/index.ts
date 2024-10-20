@@ -8,4 +8,4 @@ export const service = new Service(
   false,
 );
 
-export { CreateData, Data, PrimaryKey, Query, Row, UpdateData } from './class';
+export { CreateData, PrimaryKey, Row, UpdateData } from './class';

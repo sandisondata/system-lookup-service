@@ -1,9 +1,8 @@
-import { BaseService, Query } from 'base-service-class';
-export { Query };
+import { BaseService } from 'base-service-class';
 export type PrimaryKey = {
     uuid?: string;
 };
-export type Data = {
+type Data = {
     lookup_type: string;
     meaning: string;
     description?: string | null;
@@ -19,3 +18,4 @@ export declare class Service extends BaseService<PrimaryKey, CreateData, UpdateD
     postUpdate(): Promise<void>;
     postDelete(): Promise<void>;
 }
+export {};
