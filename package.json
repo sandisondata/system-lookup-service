@@ -1,7 +1,7 @@
 {
   "name": "system-lookup-service",
   "version": "1.0.0",
-  "description": "System lookup service",
+  "description": "System Lookup Service",
   "author": "Grant Fortington",
   "private": true,
   "license": "MIT",
