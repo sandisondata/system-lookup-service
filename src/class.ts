@@ -40,8 +40,8 @@ export class Service extends BaseService<
     const debug = new Debug(`${this.debugSource}.preUpdate`);
     debug.write(MessageType.Entry);
     if (
-      typeof this.updateData.lookup_type !== 'undefined' &&
-      this.updateData.lookup_type !== this.row.lookup_type
+      typeof this.updateData.lookup_type != 'undefined' &&
+      this.updateData.lookup_type != this.row.lookup_type
     ) {
       const uniqueKey1 = { lookup_type: this.updateData.lookup_type };
       debug.write(
@@ -52,8 +52,8 @@ export class Service extends BaseService<
       await checkUniqueKey(this.query, this.tableName, uniqueKey1);
     }
     if (
-      typeof this.updateData.meaning !== 'undefined' &&
-      this.updateData.meaning !== this.row.meaning
+      typeof this.updateData.meaning != 'undefined' &&
+      this.updateData.meaning != this.row.meaning
     ) {
       const uniqueKey2 = {
         meaning: this.updateData.meaning,
@@ -96,7 +96,7 @@ export class Service extends BaseService<
   async postUpdate() {
     const debug = new Debug(`${this.debugSource}.postUpdate`);
     debug.write(MessageType.Entry);
-    if (this.updatedRow.lookup_type !== this.row.lookup_type) {
+    if (this.updatedRow.lookup_type != this.row.lookup_type) {
       debug.write(MessageType.Step, 'Renaming lookup values table...');
       const sql =
         `ALTER TABLE ${this.row.lookup_type}_lookup_values ` +

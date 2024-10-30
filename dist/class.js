@@ -33,15 +33,15 @@ class Service extends base_service_class_1.BaseService {
         return __awaiter(this, void 0, void 0, function* () {
             const debug = new node_debug_1.Debug(`${this.debugSource}.preUpdate`);
             debug.write(node_debug_1.MessageType.Entry);
-            if (typeof this.updateData.lookup_type !== 'undefined' &&
-                this.updateData.lookup_type !== this.row.lookup_type) {
+            if (typeof this.updateData.lookup_type != 'undefined' &&
+                this.updateData.lookup_type != this.row.lookup_type) {
                 const uniqueKey1 = { lookup_type: this.updateData.lookup_type };
                 debug.write(node_debug_1.MessageType.Value, `uniqueKey1=${JSON.stringify(uniqueKey1)}`);
                 debug.write(node_debug_1.MessageType.Step, 'Checking unique key 1...');
                 yield (0, database_helpers_1.checkUniqueKey)(this.query, this.tableName, uniqueKey1);
             }
-            if (typeof this.updateData.meaning !== 'undefined' &&
-                this.updateData.meaning !== this.row.meaning) {
+            if (typeof this.updateData.meaning != 'undefined' &&
+                this.updateData.meaning != this.row.meaning) {
                 const uniqueKey2 = {
                     meaning: this.updateData.meaning,
                 };
@@ -82,7 +82,7 @@ class Service extends base_service_class_1.BaseService {
         return __awaiter(this, void 0, void 0, function* () {
             const debug = new node_debug_1.Debug(`${this.debugSource}.postUpdate`);
             debug.write(node_debug_1.MessageType.Entry);
-            if (this.updatedRow.lookup_type !== this.row.lookup_type) {
+            if (this.updatedRow.lookup_type != this.row.lookup_type) {
                 debug.write(node_debug_1.MessageType.Step, 'Renaming lookup values table...');
                 const sql = `ALTER TABLE ${this.row.lookup_type}_lookup_values ` +
                     `RENAME TO ${this.updatedRow.lookup_type}_lookup_values`;
